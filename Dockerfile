@@ -1,22 +1,10 @@
-# Stage 1: Build the application
-FROM maven:3.8.1-openjdk-11 AS builder
-
+FROM maven:3.8.5-openjdk-17 AS build
 WORKDIR /Job-Portal-main
-
-COPY pom.xml .
-COPY src src
-
-# Run Maven build with debugging and skipping tests
+COPY . .
 RUN mvn clean package -DskipTests -e -X
 
-# Stage 2: Create the final image
-FROM openjdk:11-jre-slim
-
+FROM openjdk:17.0.1-jdk-slim
 WORKDIR /Job-Portal-main
-
-COPY --from=builder /app/target/Job-Portal-main.jar Job-Portal-main.jar
-
+COPY --from=build /Job-Portal-main/target/Job-Portal-main-0.0.1-SNAPSHOT.jar Job-Portal-main.jar
 EXPOSE 8080
-
-CMD ["java", "-jar", "Job-Portal-main.jar"]
-
+ENTRYPOINT ["java", "-jar", "Job-Portal-main.jar"]
